@@ -1,0 +1,5 @@
+2024-07-14 17:00:10 - INFO - Problematic Cyclomatic Complexities:
+[('C', 'complex_function')]
+2024-07-14 17:00:10 - INFO - Problematic Halstead Scores:
+[(24.0, 0.1687267748951483, 'complex_function'),
+ (12.272727272727273, 0.06002833811130973, 'mildly_complex_function')]

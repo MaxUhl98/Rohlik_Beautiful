@@ -1,0 +1,49 @@
+2024-07-17 05:31:49 - INFO - Problematic Cyclomatic Complexities:
+[('C', 'complex_function'),
+ ('C', 'another_complex_function'),
+ ('C', 'mildly_complex_function')]
+2024-07-17 05:31:49 - INFO - Problematic Halstead Scores:
+
+2024-07-17 05:31:49 - INFO - Function complex_function, Difficulty: 15.23076923076923, Bugs: 0.08252932501298083
+2024-07-17 05:31:49 - INFO - Function another_complex_function, Difficulty: 24.0, Bugs: 0.1687267748951483
+2024-07-17 05:31:49 - INFO - Function mildly_complex_function, Difficulty: 14.807692307692308, Bugs: 0.08100100417940712
+2024-07-17 05:34:10 - INFO - Problematic Cyclomatic Complexities:
+2024-07-17 05:34:10 - INFO - Function complex_function has complexity rank C
+2024-07-17 05:34:10 - INFO - Function another_complex_function has complexity rank C
+2024-07-17 05:34:10 - INFO - Function mildly_complex_function has complexity rank C
+2024-07-17 05:34:10 - INFO - Problematic Halstead Scores:
+2024-07-17 05:34:10 - INFO - Function complex_function, Difficulty: 15.23076923076923, Bugs: 0.08252932501298083
+2024-07-17 05:34:10 - INFO - Function another_complex_function, Difficulty: 24.0, Bugs: 0.1687267748951483
+2024-07-17 05:34:10 - INFO - Function mildly_complex_function, Difficulty: 14.807692307692308, Bugs: 0.08100100417940712
+2024-07-17 05:35:18 - INFO - Problematic Cyclomatic Complexities:
+2024-07-17 05:35:18 - INFO - Function complex_function has complexity rank C
+2024-07-17 05:35:18 - INFO - Function another_complex_function has complexity rank C
+2024-07-17 05:35:18 - INFO - Function mildly_complex_function has complexity rank C
+2024-07-17 05:35:18 - INFO - Problematic Halstead Scores:
+2024-07-17 05:35:18 - INFO - Function complex_function, Difficulty: 15.23076923076923, Bugs: 0.08252932501298083
+2024-07-17 05:35:18 - INFO - Function another_complex_function, Difficulty: 24.0, Bugs: 0.1687267748951483
+2024-07-17 05:35:18 - INFO - Function mildly_complex_function, Difficulty: 14.807692307692308, Bugs: 0.08100100417940712
+2024-07-17 05:36:44 - INFO - Problematic Cyclomatic Complexities in file beauty_test_script.py:
+2024-07-17 05:36:44 - INFO - Function complex_function has complexity rank C
+2024-07-17 05:36:44 - INFO - Function another_complex_function has complexity rank C
+2024-07-17 05:36:44 - INFO - Function mildly_complex_function has complexity rank C
+2024-07-17 05:36:44 - INFO - Problematic Halstead Scores:
+2024-07-17 05:36:44 - INFO - Function complex_function, Difficulty: 15.23076923076923, Bugs: 0.08252932501298083
+2024-07-17 05:36:44 - INFO - Function another_complex_function, Difficulty: 24.0, Bugs: 0.1687267748951483
+2024-07-17 05:36:44 - INFO - Function mildly_complex_function, Difficulty: 14.807692307692308, Bugs: 0.08100100417940712
+2024-07-17 05:37:08 - INFO - Problematic Cyclomatic Complexities in file beauty_test_script.py:
+2024-07-17 05:37:08 - INFO - Function complex_function has complexity rank C
+2024-07-17 05:37:08 - INFO - Function another_complex_function has complexity rank C
+2024-07-17 05:37:08 - INFO - Function mildly_complex_function has complexity rank C
+2024-07-17 05:37:08 - INFO - Problematic Halstead Scores in file beauty_test_script.py:
+2024-07-17 05:37:08 - INFO - Function complex_function, Difficulty: 15.23076923076923, Bugs: 0.08252932501298083
+2024-07-17 05:37:08 - INFO - Function another_complex_function, Difficulty: 24.0, Bugs: 0.1687267748951483
+2024-07-17 05:37:08 - INFO - Function mildly_complex_function, Difficulty: 14.807692307692308, Bugs: 0.08100100417940712
+2024-07-17 05:40:13 - INFO - Problematic Cyclomatic Complexities in file beauty_test_script.py:
+2024-07-17 05:40:13 - INFO - Function complex_function has complexity rank C
+2024-07-17 05:40:13 - INFO - Function another_complex_function has complexity rank C
+2024-07-17 05:40:13 - INFO - Function mildly_complex_function has complexity rank C
+2024-07-17 05:40:13 - INFO - Problematic Halstead Scores in file beauty_test_script.py:
+2024-07-17 05:40:13 - INFO - Function complex_function, Difficulty: 15.23076923076923, Bugs: 0.08252932501298083
+2024-07-17 05:40:13 - INFO - Function another_complex_function, Difficulty: 24.0, Bugs: 0.1687267748951483
+2024-07-17 05:40:13 - INFO - Function mildly_complex_function, Difficulty: 14.807692307692308, Bugs: 0.08100100417940712
