@@ -7,7 +7,7 @@ import os
 import subprocess
 import logging
 from utils.log_helpers import get_logger
-from CFG import CFG
+from project_configuration.BeautyCFG import BeautyCFG
 from pathlib import Path
 import datetime
 
@@ -67,27 +67,27 @@ def analyze_script(script_path: Union[str, os.PathLike], logger: logging.Logger)
 
 
 def get_whole_project_analysis() -> None:
-    """Analyzes all project python scripts that are not inside CFG.analysis_excluded_dirs and have filenames unequal to
-    CFG.analysis_excluded_files. Also logs pytest coverage report to file at CFG.
+    """Analyzes all project python scripts that are not inside BeautyCFG.analysis_excluded_dirs and have filenames unequal to
+    BeautyCFG.analysis_excluded_files. Also logs pytest coverage report to file at BeautyCFG.
     Logs only problematic scores. Uses {filename}.log for each separate script as logfile name.
-    Writes coverage logs to beauty_checkup_logging_directory to file at CFG.coverage_log_file.
+    Writes coverage logs to beauty_checkup_logging_directory to file at BeautyCFG.coverage_log_file.
 
     :return: None
     """
-    all_files = Path(CFG.project_path).glob('**/*.py')
+    all_files = Path(BeautyCFG.project_path).glob('**/*.py')
     all_files = list(map(lambda x: str(x.absolute()), all_files))
     all_files = list(filter(
-        lambda f: not any([excluded in f for excluded in CFG.analysis_excluded_dirs + CFG.analysis_excluded_files]),
+        lambda x: not any([excluded in x for excluded in BeautyCFG.analysis_excluded_dirs + BeautyCFG.analysis_excluded_files]),
         all_files))
     for file in all_files:
         file_beauty_logger = get_logger(file.rsplit('\\', maxsplit=1)[1].replace('.py', ''),
-                                        base_filepath=CFG.beauty_checkup_logging_directory)
+                                        base_filepath=BeautyCFG.beauty_checkup_logging_directory)
         analyze_script(file, file_beauty_logger)
 
-    # Opening file twice to ensure the datetime is written first
-    with open(CFG.coverage_log_file, 'a') as f:
-        f.write(f'Coverage report from {datetime.datetime.now()}\n')
-    with open(CFG.coverage_log_file, 'a') as f:
+    # Opening coverage logfile twice to ensure the datetime is written first
+    with open(BeautyCFG.coverage_log_file, 'a') as f:
+        f.write(f'Coverage report from {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n')
+    with open(BeautyCFG.coverage_log_file, 'a') as f:
         subprocess.call('pytest -cov', stdout=f)
         subprocess.call('coverage report -m', stdout=f)
 
