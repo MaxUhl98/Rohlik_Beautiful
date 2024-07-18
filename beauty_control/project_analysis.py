@@ -1,11 +1,15 @@
+import time
+
 from radon.complexity import ComplexityVisitor, cc_rank
 from radon.metrics import mi_visit, h_visit
 from typing import *
 import os
+import subprocess
 import logging
 from utils.log_helpers import get_logger
 from CFG import CFG
 from pathlib import Path
+import datetime
 
 
 def check_cyclonic_complexity(code: str, script_name: str, logger: logging.Logger) -> None:
@@ -64,8 +68,10 @@ def analyze_script(script_path: Union[str, os.PathLike], logger: logging.Logger)
 
 def get_whole_project_analysis() -> None:
     """Analyzes all project python scripts that are not inside CFG.analysis_excluded_dirs and have filenames unequal to
-    CFG.analysis_excluded_files. Logs only problematic scores. Writes logs to beauty_checkup_logging_directory using
-    {filename}.log for each separate script as logfile name.
+    CFG.analysis_excluded_files. Also logs pytest coverage report to file at CFG.
+    Logs only problematic scores. Uses {filename}.log for each separate script as logfile name.
+    Writes coverage logs to beauty_checkup_logging_directory to file at CFG.coverage_log_file.
+
     :return: None
     """
     all_files = Path(CFG.project_path).glob('**/*.py')
@@ -77,6 +83,13 @@ def get_whole_project_analysis() -> None:
         file_beauty_logger = get_logger(file.rsplit('\\', maxsplit=1)[1].replace('.py', ''),
                                         base_filepath=CFG.beauty_checkup_logging_directory)
         analyze_script(file, file_beauty_logger)
+
+    # Opening file twice to ensure the datetime is written first
+    with open(CFG.coverage_log_file, 'a') as f:
+        f.write(f'Coverage report from {datetime.datetime.now()}\n')
+    with open(CFG.coverage_log_file, 'a') as f:
+        subprocess.call('pytest -cov', stdout=f)
+        subprocess.call('coverage report -m', stdout=f)
 
 
 if __name__ == '__main__':

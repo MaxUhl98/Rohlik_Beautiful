@@ -6,6 +6,7 @@ class CFG:
 
     # Analysis configuration
     beauty_checkup_logging_directory = project_path + '/logs/maintainability'
+    coverage_log_file = project_path + '/logs/coverage/coverage.log'
     analysis_excluded_dirs = ['.venv', '__pycache__', '.git', '.idea']
     analysis_excluded_files = ['playground.py', '__init__.py']
 
