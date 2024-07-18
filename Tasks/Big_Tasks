@@ -2,12 +2,12 @@
 [ ] 1. Setup stable, reproducible, project emulating CV, which automatically saves oof predictions for later use
         - includes logging
         - includes automated saving of test settings, produced models and adding the experiment results to an aggregated view
-        - setup reproducible config file that is automatically committed during a pipeline run
 [ ] 2. Implement preprocessing pipeline which fits neatly into the CV schema
+        - setup reproducible config file whose settings are logged and saved during each pipeline run
 [ ] 3. Include option for feature selection (SFS/feature importance)
 [ ] 4. Implement model selection in a way to perfectly fit into the existing pipeline
 [ ] 5. Write a hyperparameter-tuning wrapper for the pipeline
 [ ] 6. Add automated ensemble using oof predictions as last step
 [ ] 7. Automate Submitting (make submitting to kaggle optional)
-[ ] 8. Conduct Automated tests
+[ ] 8. Conduct Automated tests of different models, configs, tuning setups etc.
 [ ] 9. Optimize
