@@ -1,16 +1,17 @@
-import pytest
 import unittest
 import os
 from project_configuration.TrainCFG import TrainCFG
 from ast import literal_eval
+import pytest
 
 
-class TestTrainCFG(unittest.TestCase):
+class TestTrainCFG:
 
     def setUp(self):
         self.cfg = TrainCFG()
-        print(self.cfg.__dict__)
-        self.save_directory = 'files'
+        if os.getcwd().rsplit('\\', 1)[1] == 'test_project_configuration':
+            os.chdir('../..')
+        self.save_directory = 'unittests/test_project_configuration/files'
         self.value_dict = {
             'run_name': 'test',
             'validation_time_steps': 60,

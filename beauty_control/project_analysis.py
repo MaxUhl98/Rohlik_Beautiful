@@ -93,4 +93,5 @@ def get_whole_project_analysis() -> None:
 
 
 if __name__ == '__main__':
+    os.chdir('..')
     get_whole_project_analysis()
