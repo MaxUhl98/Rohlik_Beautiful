@@ -89,7 +89,7 @@ def get_whole_project_analysis() -> None:
     with open(BeautyCFG.coverage_log_file, 'a') as f:
         f.write(f'Coverage report from {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n')
     with open(BeautyCFG.coverage_log_file, 'a') as f:
-        subprocess.call('pytest -cov', stdout=f)
+        subprocess.call('coverage run -m pytest', stdout=f)
         subprocess.call('coverage report -m', stdout=f)
 
 
