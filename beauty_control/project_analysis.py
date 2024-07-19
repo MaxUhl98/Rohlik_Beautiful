@@ -56,6 +56,7 @@ def analyze_script(script_path: Union[str, os.PathLike], logger: logging.Logger)
     :param logger: Logging object.
     :return: None
     """
+    logger.info(f'Analyzing script {script_path}')
     script_name = script_path.rsplit("\\", 1)[1]
     with open(script_path, 'r') as f:
         code = f.read()
