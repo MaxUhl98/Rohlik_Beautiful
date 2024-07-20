@@ -10,6 +10,7 @@ from project_configuration.TrainCFG import TrainCFG
 from utils.log_helpers import get_logger
 import pickle
 
+
 def get_sorted_timeseries_array(series: pd.Series) -> np.ndarray:
     """Convert series to a sorted numpy array of unique dates.
 
@@ -81,7 +82,8 @@ def log_and_save_results(
     oof_predictions.append(train_data['oof_predictions'])
     cv_train_losses.append(train_data['train_loss'])
     cv_test_losses.append(train_data['test_loss'])
-    cv_logger.info(f'Fold {num} Train Loss: {train_data["train_loss"].item()}, Test Loss: {train_data["test_loss"].item()}')
+    cv_logger.info(
+        f'Fold {num} Train Loss: {train_data["train_loss"].item()}, Test Loss: {train_data["test_loss"].item()}')
 
 
 def save_cv_results_and_settings(
@@ -107,11 +109,38 @@ def save_cv_results_and_settings(
     np.save(os.path.join(save_directory_path, 'all_oof_predictions.npy'), np.concatenate(oof_predictions))
 
 
+def save_models_and_run_data(save_directory_path: str, train_cfg: TrainCFG, oof_predictions: list[Any],
+                             cv_train_losses: list[Any], cv_test_losses: list[Any],
+                             additional_metric_losses: dict[str, Any], models: list[Any]) -> None:
+    """Saved models and CV results to save_directory_path. Also saves CV results in aggregated view.
+
+    :param save_directory_path: Path to the current run directory
+    :param train_cfg: Training configuration
+    :param oof_predictions: List of all oof predictions of the current run
+    :param cv_train_losses: List of all training losses of the current run
+    :param cv_test_losses: List of all test losses of the current run
+    :param additional_metric_losses: Dict containing all lists of additional losses of the current run
+    :param models: List of all models trained models from the current run
+    :return: None (saves everything inside the save directory)
+    """
+    save_cv_results_and_settings(train_cfg, save_directory_path, oof_predictions, cv_train_losses, cv_test_losses,
+                                 additional_metric_losses)
+
+    with open(save_directory_path + '/models.pickle', 'wb') as handle:
+        pickle.dump(models, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    aggregated_runs = pd.read_csv(train_cfg.aggregrate_runs_path)
+    print(aggregated_runs)
+    aggregated_runs = pd.concat([aggregated_runs,pd.DataFrame({'run_name':[save_directory_path.rsplit('\\', 1)[1]],'avg_cv_test_loss': [np.mean(cv_test_losses)],'num_folds':[train_cfg.num_folds],'model_name': [models[0].__class__.__name__]},index=None)], ignore_index=True, axis=0
+                                )
+    aggregated_runs.to_csv(train_cfg.aggregrate_runs_path)
+
+
 def execute_cv_loop(
         _data: pd.DataFrame, train_function: Callable, models: list[Any], train_cfg: TrainCFG, data_cfg: DataCFG,
         additional_metrics: Iterable[Callable] = (), **train_kwargs
 ) -> None:
-    """Execute the cross-validation loop.
+    """Execute the cross-validation loop. Saves Out-of-fold predictions (OOF), train and test loss and trained models.
 
     :param _data: Pandas dataframe containing training and testing data.
     :param train_function: Function used to train the models.
@@ -132,13 +161,10 @@ def execute_cv_loop(
 
     for num, (train_times, test_times) in enumerate(splitter.split(time_series), start=1):
         X_train, y_train, X_test, y_test = get_fold_data(_data, data_cfg, time_series, train_times, test_times)
-        train_data = train_function(X_train, y_train, X_test, y_test, models[num-1], train_cfg, **train_kwargs)
+        train_data = train_function(X_train, y_train, X_test, y_test, models[num - 1], train_cfg, **train_kwargs)
         log_and_save_results(train_data, additional_metrics, additional_metric_losses,
                              oof_predictions, cv_train_losses, cv_test_losses, cv_logger, y_test, num)
 
-    save_cv_results_and_settings(train_cfg, save_directory_path, oof_predictions, cv_train_losses, cv_test_losses,
-                                 additional_metric_losses)
-
-    with open(save_directory_path+'/models.pickle', 'wb') as handle:
-        pickle.dump(models, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    save_models_and_run_data(str(save_directory_path), train_cfg, oof_predictions, cv_train_losses, cv_test_losses,
+                             additional_metric_losses, models)
 

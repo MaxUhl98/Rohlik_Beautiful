@@ -1,5 +1,5 @@
 [x] 0. Setup automatically calculated complexity, automatically calculated code coverage
-[ ] 1. Setup stable, reproducible, project emulating CV, which automatically saves oof predictions for later use
+[x] 1. Setup stable, reproducible, project emulating CV, which automatically saves oof predictions for later use
         - includes logging
         - includes automated saving of test settings, produced models and adding the experiment results to an aggregated view
 [ ] 2. Implement preprocessing pipeline which fits neatly into the CV schema

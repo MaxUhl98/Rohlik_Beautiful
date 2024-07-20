@@ -37,6 +37,7 @@ class TestTimeSeriesCV:
         self.train_cfg.num_folds = 3
         self.train_cfg.validation_time_steps = 1
         self.train_cfg.run_save_directory = self.save_directory
+        self.train_cfg.aggregate_runs_path = 'unittests/test_cross_validation/files/test_aggregate_runs.csv'
         self.data_cfg = DataCFG()
         self._data = pd.DataFrame(
             {'date': ['2022-01-01', '2022-05-01', '2022-04-10', '2022-04-09', '2022-01-01'], 'orders': [1, 2, 3, 4, 5],
@@ -97,4 +98,6 @@ class TestTimeSeriesCV:
         with open(self.save_directory+'/test/models.pickle', 'rb') as f:
             models = pickle.load(f)
         assert [model.__dict__ for model in models] == [model.__dict__ for model in self.models]
+        df = pd.read_csv(self.train_cfg.aggregrate_runs_path)
+        df.iloc[0:0].to_csv(self.train_cfg.aggregrate_runs_path)
         shutil.rmtree(self.train_cfg.run_save_directory + f'/{self.train_cfg.run_name}')
