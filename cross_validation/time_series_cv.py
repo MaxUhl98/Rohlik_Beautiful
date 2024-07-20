@@ -8,7 +8,7 @@ from sklearn.model_selection import TimeSeriesSplit
 from project_configuration.DataCFG import DataCFG
 from project_configuration.TrainCFG import TrainCFG
 from utils.log_helpers import get_logger
-
+import pickle
 
 def get_sorted_timeseries_array(series: pd.Series) -> np.ndarray:
     """Convert series to a sorted numpy array of unique dates.
@@ -36,8 +36,8 @@ def create_new_save_directory(train_cfg: TrainCFG) -> str:
 
 
 def get_fold_data(
-    _data: pd.DataFrame, data_cfg: DataCFG, time_series: np.ndarray,
-    train_times: np.ndarray, test_times: np.ndarray
+        _data: pd.DataFrame, data_cfg: DataCFG, time_series: np.ndarray,
+        train_times: np.ndarray, test_times: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Split the data into training and testing sets based on time series.
 
@@ -52,16 +52,16 @@ def get_fold_data(
     X_test = _data[
         (_data[data_cfg.time_column] >= time_series[test_times[0]]) &
         (_data[data_cfg.time_column] <= time_series[test_times[-1]])
-    ]
+        ]
     y_train, y_test = X_train.pop(data_cfg.target_column), X_test.pop(data_cfg.target_column)
     return X_train.values, y_train.values, X_test.values, y_test.values
 
 
 def log_and_save_results(
-    train_data: dict[str, Any], additional_metrics: Iterable[Callable],
-    additional_metric_losses: dict[str, Any], oof_predictions: list[Any],
-    cv_train_losses: list[Any], cv_test_losses: list[Any], cv_logger: logging.Logger,
-    y_test: np.ndarray, num: int
+        train_data: dict[str, Any], additional_metrics: Iterable[Callable],
+        additional_metric_losses: dict[str, Any], oof_predictions: list[Any],
+        cv_train_losses: list[Any], cv_test_losses: list[Any], cv_logger: logging.Logger,
+        y_test: np.ndarray, num: int
 ) -> None:
     """Log and save cross-validation results.
 
@@ -81,12 +81,12 @@ def log_and_save_results(
     oof_predictions.append(train_data['oof_predictions'])
     cv_train_losses.append(train_data['train_loss'])
     cv_test_losses.append(train_data['test_loss'])
-    cv_logger.info(f'Fold {num} Train Loss: {train_data["train_loss"]}, Test Loss: {train_data["test_loss"]}')
+    cv_logger.info(f'Fold {num} Train Loss: {train_data["train_loss"].item()}, Test Loss: {train_data["test_loss"].item()}')
 
 
 def save_cv_results_and_settings(
-    train_cfg: TrainCFG, save_directory_path: str, oof_predictions: list[Any],
-    cv_train_losses: list[Any], cv_test_losses: list[Any], additional_metric_losses: dict[str, Any]
+        train_cfg: TrainCFG, save_directory_path: str, oof_predictions: list[Any],
+        cv_train_losses: list[Any], cv_test_losses: list[Any], additional_metric_losses: dict[str, Any]
 ) -> None:
     """Save the cross-validation results and training configuration.
 
@@ -99,19 +99,23 @@ def save_cv_results_and_settings(
     :return: None (saves everything inside the save directory)
     """
     train_cfg.save(os.path.join(save_directory_path, 'train_cfg.txt'))
-    df_cv = pd.DataFrame({'train_loss': cv_train_losses, 'test_loss': cv_test_losses, **additional_metric_losses})
+    for k, v in additional_metric_losses.items():
+        additional_metric_losses[k] = np.concatenate(v)
+    df_cv = pd.DataFrame({'train_loss': np.concatenate(cv_train_losses), 'test_loss': np.concatenate(cv_test_losses),
+                          **additional_metric_losses})
     df_cv.to_csv(os.path.join(save_directory_path, 'losses.csv'), index=False)
     np.save(os.path.join(save_directory_path, 'all_oof_predictions.npy'), np.concatenate(oof_predictions))
 
 
 def execute_cv_loop(
-    _data: pd.DataFrame, train_function: Callable, train_cfg: TrainCFG, data_cfg: DataCFG,
-    additional_metrics: Iterable[Callable] = (), **train_kwargs
+        _data: pd.DataFrame, train_function: Callable, models: list[Any], train_cfg: TrainCFG, data_cfg: DataCFG,
+        additional_metrics: Iterable[Callable] = (), **train_kwargs
 ) -> None:
     """Execute the cross-validation loop.
 
     :param _data: Pandas dataframe containing training and testing data.
     :param train_function: Function used to train the models.
+    :param models: List of models to train.
     :param train_cfg: Configuration used to train the models.
     :param data_cfg: Data configuration used to train the models.
     :param additional_metrics: Additional metrics used to evaluate the models.
@@ -128,9 +132,13 @@ def execute_cv_loop(
 
     for num, (train_times, test_times) in enumerate(splitter.split(time_series), start=1):
         X_train, y_train, X_test, y_test = get_fold_data(_data, data_cfg, time_series, train_times, test_times)
-        train_data = train_function(X_train, y_train, X_test, y_test, train_cfg, **train_kwargs)
+        train_data = train_function(X_train, y_train, X_test, y_test, models[num-1], train_cfg, **train_kwargs)
         log_and_save_results(train_data, additional_metrics, additional_metric_losses,
                              oof_predictions, cv_train_losses, cv_test_losses, cv_logger, y_test, num)
 
     save_cv_results_and_settings(train_cfg, save_directory_path, oof_predictions, cv_train_losses, cv_test_losses,
                                  additional_metric_losses)
+
+    with open(save_directory_path+'/models.pickle', 'wb') as handle:
+        pickle.dump(models, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
