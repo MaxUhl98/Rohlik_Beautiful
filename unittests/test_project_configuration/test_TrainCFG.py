@@ -16,7 +16,8 @@ class TestTrainCFG:
             'run_name': 'test',
             'validation_time_steps': 60,
             'num_folds': 10,
-            'run_save_directory': 'runs/'}
+            'run_save_directory': 'runs/',
+            'log_dir': 'logs/training'}
 
     def tearDown(self):
         del self.cfg
@@ -34,4 +35,4 @@ class TestTrainCFG:
         self.setUp()
         self.cfg.load(self.save_directory + '/load_test.txt')
         assert {k: v for k, v in vars(self.cfg).items() if not callable(v) and not k.startswith("__")} == {
-            'run_name': 'test_new', 'validation_time_steps': 10, 'num_folds': 100, 'run_save_directory': 'runs/test/'}
+            'run_name': 'test_new', 'validation_time_steps': 10, 'num_folds': 100, 'run_save_directory': 'runs/test/','log_dir': 'logs/training'}
