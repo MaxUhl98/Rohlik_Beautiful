@@ -1,6 +1,7 @@
 from ast import literal_eval
 from typing_extensions import Self
 
+
 class TrainCFG:
     """Class to configure the training process"""
     run_name: str = 'test'
@@ -8,6 +9,7 @@ class TrainCFG:
     num_folds: int = 10
     run_save_directory: str = 'runs/'
     log_dir: str = 'logs/training'
+    aggregrate_runs_path: str = 'runs/aggregate_runs.csv'
 
     def __init__(self):
         """This is necessary for the saving of variables
