@@ -1,4 +1,5 @@
-1. You can only work on a new task once the tasdk before is done beautifully, which means that the code is generalized,
-has low complexity and a test coverage of at least 80%
+1. You can only work on a new task once the previous task has been completed beautifully,
+which means that the code has to be  generalized, has to have low complexity and a test coverage of at least 85%
 2. You have to use version control to save the different configurations for test runs
 3. If a certain piece of code outside of model training/openfe takes longer than 5 seconds you have to optimize it
+4. Configuration files should be as simple as possible
