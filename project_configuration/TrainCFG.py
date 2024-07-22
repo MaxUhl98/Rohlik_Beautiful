@@ -1,6 +1,7 @@
 from ast import literal_eval
 from typing_extensions import Self
-from project_configuration.ConfigurationFunctionalities.BasicFunctionalities import BasicFunctionalities
+from project_configuration.ConfigurationFunctionalities import BasicFunctionalities
+
 
 class TrainCFG(BasicFunctionalities):
     """Class to configure the training process"""
@@ -20,5 +21,3 @@ class TrainCFG(BasicFunctionalities):
         self.num_folds = self.num_folds
         self.run_save_directory = self.run_save_directory
         self.log_dir = self.log_dir
-
-
