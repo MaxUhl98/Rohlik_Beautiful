@@ -1,8 +1,9 @@
 from preprocessing.feature_engineering import *
 from typing import *
+from project_configuration.ConfigurationFunctionalities.BasicFunctionalities import BasicFunctionalities
 
 
-class PreprocessingCFG:
+class PreprocessingCFG(BasicFunctionalities):
     # Encoding settings
     use_onehot: bool = True
     use_ordinal_encoding: bool = True
@@ -23,10 +24,15 @@ class PreprocessingCFG:
     specialized_feature_engineering_function: Union[
         Callable, None] = engineer_rohlik_specific_features  # Set to None if you don't want specialized preprocessing
 
+    # Feature selection
+    feature_selection_method: Union[str, None] = None  # one out of [None, 'SFS', 'RFE', 'Model'], all use XGB regressor
+    scoring: Union[str, Callable] = 'MAPE'
+
     data_save_directory: str = 'preprocessing/preprocessed_datasets'
 
     def __init__(self):
         """Initialization of class attributes which adds 'self' elements to self.__dict__"""
+        super().__init__()
         self.use_onehot = self.use_onehot
         self.use_ordinal_encoding = self.use_ordinal_encoding
         self.use_basic_timeseries_preprocessing = self.use_basic_timeseries_preprocessing
@@ -42,13 +48,6 @@ class PreprocessingCFG:
         self.openfe_name = self.get_openfe_name() if self.use_openfe else ''
         self.name = self.get_name()
 
-    def __call__(self) -> None:
-        """Reinitialize class instance when called.
-
-        :return: None
-        """
-        self.__init__()
-
     def get_openfe_name(self) -> str:
         """Generates the unique openfe feature name for the current configuration.
 
@@ -63,17 +62,15 @@ class PreprocessingCFG:
         """Concatenates all used preprocessing steps names into a unique pipeline name for each different setup.
         :return: Name for current pipeline setup"""
         setting_names = sum([k + '_' for k, v in self.__dict__.items() if v is True], '')
-        return setting_names + self.specialized_feature_engineering_function_name
+        return setting_names + f'_{self.specialized_feature_engineering_function_name}_{self.feature_selection_method}'
 
     def get_feature_engineering_function_name(self) -> str:
+        """Returns the name of the feature engineering function to use or None for no feature engineering.
+
+        :return: Name of the feature engineering function or None for no feature engineering
+        """
         try:
             specialized_feature_engineering_function_name = self.specialized_feature_engineering_function.__name__
         except AttributeError:
             specialized_feature_engineering_function_name = 'None'
         return specialized_feature_engineering_function_name
-
-    def save(self) -> None:
-        raise NotImplementedError
-
-    def load(self) -> Any:
-        raise NotImplementedError
