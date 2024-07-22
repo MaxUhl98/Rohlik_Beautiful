@@ -1,18 +1,17 @@
 import os.path
 import pickle
-import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, OneHotEncoder, TargetEncoder, StandardScaler
-from project_configuration.DataCFG import DataCFG
-from project_configuration.PreprocessingCFG import PreprocessingCFG
+from project_configuration import DataCFG, PreprocessingCFG
 from preprocessing.feature_engineering import *
 from openfe import OpenFE, transform
 from typing import *
 from sklearn.feature_selection import SelectFromModel, SequentialFeatureSelector, RFE
 from xgboost import XGBRegressor
 from sklearn.preprocessing import TargetEncoder
+from BasePipeline import BasePipeline
 
 
-class InitialPreprocessor:
+class InitialPreprocessor(BasePipeline):
     """
     A class to perform initial preprocessing of the dataset.
 
@@ -21,8 +20,7 @@ class InitialPreprocessor:
     """
 
     def __init__(self, preprocess_cfg: PreprocessingCFG, data_cfg: DataCFG):
-        self.preprocess_cfg = preprocess_cfg
-        self.data_cfg = data_cfg
+        super().__init__(preprocess_cfg, data_cfg)
         self.openfe_filename: str = f'{preprocess_cfg.openfe_feature_save_directory}/{preprocess_cfg.openfe_name}.pkl'
         self.data_save_path = f'{preprocess_cfg.data_save_directory}/{preprocess_cfg.name}.feather'
 
@@ -151,17 +149,15 @@ class InitialPreprocessor:
         return X
 
 
-class CVPreprocessor:
-    """
-    A class to perform preprocessing inside the CV loop.
+class CVPreprocessor(BasePipeline):
+    """A class to perform preprocessing inside the CV loop.
 
     :param preprocess_cfg: Configuration object for preprocessing settings.
     :param data_cfg: Configuration object for data settings.
     """
 
     def __init__(self, preprocess_cfg: PreprocessingCFG, data_cfg: DataCFG):
-        self.preprocess_cfg = preprocess_cfg
-        self.data_cfg = data_cfg
+        super().__init__(preprocess_cfg, data_cfg)
 
     def run(self, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
         """Execute the preprocessing pipeline on the provided data.
