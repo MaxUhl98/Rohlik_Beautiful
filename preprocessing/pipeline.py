@@ -7,6 +7,8 @@ from project_configuration.PreprocessingCFG import PreprocessingCFG
 from preprocessing.feature_engineering import *
 from openfe import OpenFE, transform
 from typing import *
+from sklearn.feature_selection import SelectFromModel, SequentialFeatureSelector, RFE
+from xgboost import XGBRegressor
 
 
 class InitialPreprocessor:
@@ -35,6 +37,7 @@ class InitialPreprocessor:
 
         X = self.encode_categorical_data(X)
         X = self.standardize(X)
+        X = self.select_features(X)
         return pd.concat([X, y], axis=1)
 
     def engineer_openfe_features(self, X: pd.DataFrame, y: pd.Series) -> tuple[pd.DataFrame, pd.Series]:
@@ -75,6 +78,18 @@ class InitialPreprocessor:
     def standardize(self, X: pd.DataFrame) -> pd.DataFrame:
         if self.preprocess_cfg.standardize:
             X[self.data_cfg.standardize_columns] = StandardScaler().fit_transform(X[self.data_cfg.standardize_columns])
+        return X
+
+    def select_features(self, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
+        match self.preprocess_cfg.feature_selection_method:
+            case None:
+                return X
+            case 'SFS':
+                select = SequentialFeatureSelector(XGBRegressor(), scoring=self.preprocess_cfg.scoring)
+                X[X.columns] = select.fit_transform(X.values, y.values)
+            case 'Model':
+                select = SelectFromModel(XGBRegressor())
+                X[X.columns] = select.fit_transform(X.values, y.values)
         return X
 
 
