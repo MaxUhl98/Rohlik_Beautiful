@@ -8,12 +8,11 @@ from typing import *
 from sklearn.feature_selection import SelectFromModel, SequentialFeatureSelector, RFE
 from xgboost import XGBRegressor
 from sklearn.preprocessing import TargetEncoder
-from BasePipeline import BasePipeline
+from preprocessing.BasePipeline import BasePipeline
 
 
 class InitialPreprocessor(BasePipeline):
-    """
-    A class to perform initial preprocessing of the dataset.
+    """A class to perform initial preprocessing of the dataset.
 
     :param preprocess_cfg: Configuration object for preprocessing settings.
     :param data_cfg: Configuration object for data settings.
@@ -25,8 +24,7 @@ class InitialPreprocessor(BasePipeline):
         self.data_save_path = f'{preprocess_cfg.data_save_directory}/{preprocess_cfg.name}.feather'
 
     def run(self, data: pd.DataFrame) -> pd.DataFrame:
-        """
-        Execute the preprocessing pipeline on the provided data.
+        """Execute the preprocessing pipeline on the provided data.
 
         :param data: Input data to preprocess.
         :return: Preprocessed data.
@@ -39,8 +37,8 @@ class InitialPreprocessor(BasePipeline):
         return data
 
     def transform_data(self, data: pd.DataFrame) -> pd.DataFrame:
-        """
-        Transform the data through feature engineering, encoding, and selection.
+        """Transform the data through feature engineering, encoding, and selection.
+         Performs these steps exactly as specified in the PreprocessingCFG object.
 
         :param data: Input data to transform.
         :return: Transformed data.
@@ -58,8 +56,7 @@ class InitialPreprocessor(BasePipeline):
         return pd.concat([X, y], axis=1)
 
     def engineer_openfe_features(self, X: pd.DataFrame, y: pd.Series) -> tuple[pd.DataFrame, pd.Series]:
-        """
-        Engineer features using OpenFE if not already saved.
+        """Engineer features using OpenFE if not already saved.
 
         :param X: Feature data.
         :param y: Target data.
@@ -75,8 +72,7 @@ class InitialPreprocessor(BasePipeline):
         return X, y
 
     def encode_categorical_data(self, X: pd.DataFrame) -> pd.DataFrame:
-        """
-        Encode categorical data using specified encoders.
+        """Encode categorical data using specified encoders.
 
         :param X: Feature data to encode.
         :return: Encoded feature data.
@@ -88,8 +84,7 @@ class InitialPreprocessor(BasePipeline):
         return X
 
     def engineer_manual_features(self, X: pd.DataFrame) -> pd.DataFrame:
-        """
-        Engineer manual features based on the configuration.
+        """Engineer manual features based on the configuration.
 
         :param X: Feature data to engineer.
         :return: Feature data with engineered features.
@@ -101,8 +96,7 @@ class InitialPreprocessor(BasePipeline):
         return X
 
     def load_openfe_features(self) -> Any:
-        """
-        Load OpenFE features from a file.
+        """Load OpenFE features from a file.
 
         :return: Loaded OpenFE features.
         """
@@ -110,8 +104,7 @@ class InitialPreprocessor(BasePipeline):
             return pickle.load(f)
 
     def save_openfe_features(self, features: Any) -> None:
-        """
-        Save OpenFE features to a file.
+        """Save OpenFE features to a file.
 
         :param features: OpenFE features to save.
         """
@@ -119,8 +112,7 @@ class InitialPreprocessor(BasePipeline):
             pickle.dump(features, f, pickle.HIGHEST_PROTOCOL)
 
     def standardize(self, X: pd.DataFrame) -> pd.DataFrame:
-        """
-        Standardize the feature data.
+        """Standardize the feature data.
 
         :param X: Feature data to standardize.
         :return: Standardized feature data.
@@ -130,8 +122,7 @@ class InitialPreprocessor(BasePipeline):
         return X
 
     def select_features(self, X: pd.DataFrame, y: pd.Series) -> np.ndarray:
-        """
-        Select features based on the configuration method.
+        """Select features based on the configuration method.
 
         :param X: Feature data.
         :param y: Target data.
