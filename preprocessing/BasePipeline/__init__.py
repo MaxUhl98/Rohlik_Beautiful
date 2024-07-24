@@ -1,1 +1,1 @@
-from BasePipeline import BasePipeline
+from preprocessing.BasePipeline.BasePipeline import BasePipeline

@@ -1,1 +1,1 @@
-from BasicFunctionalities import BasicFunctionalities
+from project_configuration.ConfigurationFunctionalities.BasicFunctionalities import BasicFunctionalities

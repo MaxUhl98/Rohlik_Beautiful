@@ -1,0 +1,4 @@
+from unittests.mock_configurations.mockDataCFG import MockDataCFG
+from unittests.mock_configurations.mockTrainCFG import MockTrainCFG
+from unittests.mock_configurations.mockDataCFG import MockDataCFG
+from unittests.mock_configurations.mockPreprocessingCFG import MockPreprocessingCFG
