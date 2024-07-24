@@ -1,8 +1,6 @@
-import unittest
 import os
 from project_configuration.TrainCFG import TrainCFG
 from ast import literal_eval
-import pytest
 
 
 class TestTrainCFG:
