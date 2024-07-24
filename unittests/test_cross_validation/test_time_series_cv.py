@@ -1,9 +1,7 @@
 import shutil
-import pickle
 from cross_validation.time_series_cv import *
 import pandas as pd
-from project_configuration.TrainCFG import TrainCFG
-from project_configuration.DataCFG import DataCFG
+from unittests.mock_configurations import MockDataCFG, MockTrainCFG
 from sklearn.linear_model import LinearRegression
 
 
@@ -14,15 +12,18 @@ def gen():
     yield {'train_loss': np.array([11.3]), 'test_loss': np.array([23.56]),
            'oof_predictions': np.array([1, 2, 3])}
 
+
 g = gen()
+
+
 def mock_train_func(X_train, y_train, X_test, y_test, model, train_cfg, **train_kwargs):
     assert model is not None
     assert not isinstance(model, Iterable)
-    assert type(X_train) == np.ndarray
-    assert type(y_train) == np.ndarray
-    assert type(X_test) == np.ndarray
-    assert type(y_test) == np.ndarray
-    assert type(train_cfg) == TrainCFG
+    assert isinstance(X_train, np.ndarray)
+    assert isinstance(y_train, np.ndarray)
+    assert isinstance(X_test, np.ndarray)
+    assert isinstance(y_test, np.ndarray)
+    assert isinstance(train_cfg, TrainCFG)
     assert X_train.shape[0] == y_train.shape[0]
     assert X_test.shape[0] == y_test.shape[0]
     return next(g)
@@ -33,16 +34,9 @@ class TestTimeSeriesCV:
         if os.getcwd().rsplit('\\', 1)[1] == 'test_cross_validation':
             os.chdir('../..')
         self.save_directory = 'unittests/test_cross_validation/files'
-        self.train_cfg = TrainCFG()
-        self.train_cfg.num_folds = 3
-        self.train_cfg.validation_time_steps = 1
-        self.train_cfg.run_save_directory = self.save_directory
-        self.train_cfg.aggregate_runs_path = 'unittests/test_cross_validation/files/test_aggregate_runs.csv'
-        self.data_cfg = DataCFG()
-        self._data = pd.DataFrame(
-            {'date': ['2022-01-01', '2022-05-01', '2022-04-10', '2022-04-09', '2022-01-01'], 'orders': [1, 2, 3, 4, 5],
-             'warehouse': ['A', 'A', 'A', 'A', 'B']})
-
+        self.train_cfg = MockTrainCFG()
+        self.data_cfg = MockDataCFG
+        self._data = pd.read_csv('unittests/test_cross_validation/files/unittest_dataframe.csv')
         self.test_oof_predictions = [np.array([1, 2, 3]), np.array([3, 4, 5])]
         self.test_cv_train_losses = [np.array([.01, .2, .3]), np.array([.03, .14, .0095])]
         self.test_cv_test_losses = [np.array([.11, .02, 1.93]), np.array([.13, .34, .0195])]
@@ -95,7 +89,7 @@ class TestTimeSeriesCV:
 
     def test_execute_cv_loop(self):
         execute_cv_loop(self._data, mock_train_func, self.models, self.train_cfg, self.data_cfg)
-        with open(self.save_directory+'/test/models.pickle', 'rb') as f:
+        with open(self.save_directory + '/test/models.pickle', 'rb') as f:
             models = pickle.load(f)
         assert [model.__dict__ for model in models] == [model.__dict__ for model in self.models]
         df = pd.read_csv(self.train_cfg.aggregrate_runs_path)
