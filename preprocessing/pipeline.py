@@ -1,5 +1,7 @@
 import os.path
 import pickle
+
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, OneHotEncoder, TargetEncoder, StandardScaler
 from project_configuration import DataCFG, PreprocessingCFG
 from preprocessing.feature_engineering import *
@@ -43,12 +45,12 @@ class InitialPreprocessor(BasePipeline):
         :param data: Input data to transform.
         :return: Transformed data.
         """
-        X = data[self.data_cfg.usable_columns]
+        X = data[self.data_cfg.usable_columns + [self.data_cfg.target_column]]
         X = self.engineer_manual_features(X)
         y = X.pop(self.data_cfg.target_column)
-
         if self.preprocess_cfg.use_openfe:
             X, y = self.engineer_openfe_features(X, y)
+            X = self.round_values(X)
 
         X = self.encode_categorical_data(X)
         X = self.standardize(X)
@@ -63,6 +65,9 @@ class InitialPreprocessor(BasePipeline):
         :return: Tuple of transformed feature data and target data.
         """
         if not os.path.exists(self.openfe_filename):
+            if X.isna().any().any():
+                raise AssertionError(f'Feature data has NaN values in {self.openfe_filename}. '
+                                     f'NaN values are incompatible with OpenFE, remove NaN values or disable OpenFE')
             features = OpenFE().fit(X, y, **self.preprocess_cfg.openfe_kwargs)
             self.save_openfe_features(features)
         else:
@@ -89,10 +94,13 @@ class InitialPreprocessor(BasePipeline):
         :param X: Feature data to engineer.
         :return: Feature data with engineered features.
         """
+        X = self.round_values(X)
         if self.preprocess_cfg.use_basic_timeseries_preprocessing:
             X = engineer_basic_date_features(X, self.data_cfg)
+            X = self.round_values(X)
         if callable(self.preprocess_cfg.specialized_feature_engineering_function):
             X = self.preprocess_cfg.specialized_feature_engineering_function(X)
+            X = self.round_values(X)
         return X
 
     def load_openfe_features(self) -> Any:
@@ -138,6 +146,16 @@ class InitialPreprocessor(BasePipeline):
                 select = SelectFromModel(XGBRegressor()).fit(X.values, y.values)
                 X = X[[feature for feature, is_supported in zip(X.columns, select.support_) if is_supported]]
         return X
+
+    def round_values(self, X: pd.DataFrame) -> pd.DataFrame:
+        X_categorical = X.select_dtypes(include=['object', 'category'])
+        X = X.select_dtypes(exclude=['object', 'category']).round(decimals=self.preprocess_cfg.rounding_precision)
+        return pd.concat([X, X_categorical], axis=1)
+
+    def drop_zero_variance_features(self, X: pd.DataFrame) -> pd.DataFrame:
+        standard_deviations = X.select_dtypes(exclude=['object', 'category']).std()
+        drop_cols = standard_deviations.loc[standard_deviations == 0].index
+        return X.drop(columns=drop_cols)
 
 
 class CVPreprocessor(BasePipeline):
