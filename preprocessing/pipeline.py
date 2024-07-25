@@ -53,6 +53,7 @@ class InitialPreprocessor(BasePipeline):
             X = self.round_values(X)
 
         X = self.encode_categorical_data(X)
+        X = self.drop_zero_variance_features(X)
         X = self.standardize(X)
         X = self.select_features(X, y)
         return pd.concat([X, y], axis=1)
