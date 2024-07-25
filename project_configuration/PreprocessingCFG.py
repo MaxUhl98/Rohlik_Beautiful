@@ -12,18 +12,19 @@ class PreprocessingCFG(BasicFunctionalities):
     # Preprocessing Settings
     use_basic_timeseries_preprocessing: bool = True
     standardize: bool = False
+    rounding_precision: int = 10
 
     # OpenFE settings
-    use_openfe: bool = True
+    use_openfe: bool = False
     openfe_kwargs: dict[str, Any] = {'feature_boosting': True,
-                                     'task_type': 'regression',
+                                     'task': 'regression',
                                      'n_repeats': 2,
                                      'n_jobs': 4}
     openfe_feature_save_directory: str = 'preprocessing/openfe_features'
 
     # Feature Engineering Settings
     specialized_feature_engineering_function: Union[
-        Callable, None] = engineer_rohlik_specific_features  # Set to None if you don't want specialized preprocessing
+        Callable, None] = None  # Set to None if you don't want specialized preprocessing
 
     # Feature selection
     feature_selection_method: Union[str, None] = None  # one out of [None, 'SFS', 'RFE', 'Model'], all use XGB regressor
@@ -54,16 +55,16 @@ class PreprocessingCFG(BasicFunctionalities):
 
         :return: Pipeline name
         """
-        openfe_name = sum([str(v) + '_' for k, v in self.openfe_kwargs.items() if k != 'n_jobs'], '')
-        openfe_name += f'_{self.use_basic_timeseries_preprocessing}'
+        openfe_name = ''.join([str(v) + '_' for k, v in self.openfe_kwargs.items() if k != 'n_jobs'])
+        openfe_name += f'{self.use_basic_timeseries_preprocessing}'
         openfe_name += f'_{self.specialized_feature_engineering_function_name}'
         return openfe_name
 
     def get_pipeline_name(self) -> str:
         """Concatenates all used preprocessing steps names into a unique pipeline name for each different setup.
         :return: Name for current pipeline setup"""
-        setting_names = sum([k + '_' for k, v in self.__dict__.items() if v is True], '')
-        return setting_names + f'_{self.specialized_feature_engineering_function_name}_{self.feature_selection_method}'
+        setting_names = ''.join([k + '_' for k, v in self.__dict__.items() if v is True])
+        return setting_names + f'{self.rounding_precision}_{self.specialized_feature_engineering_function_name}_{self.feature_selection_method}'
 
     def get_feature_engineering_function_name(self) -> str:
         """Returns the name of the feature engineering function to use or None for no feature engineering.
