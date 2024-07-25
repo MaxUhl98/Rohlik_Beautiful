@@ -12,14 +12,16 @@ class MockPreprocessingCFG(MockBasicFunctionalities):
     # Preprocessing Settings
     use_basic_timeseries_preprocessing: bool = True
     standardize: bool = False
+    rounding_precision: int = 10
 
     # OpenFE settings
     use_openfe: bool = True
     openfe_kwargs: dict[str, Any] = {'feature_boosting': True,
-                                     'task_type': 'regression',
+                                     'task': 'regression',
                                      'n_repeats': 2,
                                      'n_jobs': 4}
     openfe_feature_save_directory: str = 'unittests/test_preprocessing/files'
+
 
     # Feature Engineering Settings
     specialized_feature_engineering_function: Union[
@@ -54,16 +56,16 @@ class MockPreprocessingCFG(MockBasicFunctionalities):
 
         :return: Pipeline name
         """
-        openfe_name = sum([str(v) + '_' for k, v in self.openfe_kwargs.items() if k != 'n_jobs'], '')
-        openfe_name += f'_{self.use_basic_timeseries_preprocessing}'
+        openfe_name = ''.join([str(v) + '_' for k, v in self.openfe_kwargs.items() if k != 'n_jobs'])
+        openfe_name += f'{self.use_basic_timeseries_preprocessing}'
         openfe_name += f'_{self.specialized_feature_engineering_function_name}'
         return openfe_name
 
     def get_pipeline_name(self) -> str:
         """Concatenates all used preprocessing steps names into a unique pipeline name for each different setup.
         :return: Name for current pipeline setup"""
-        setting_names = sum([k + '_' for k, v in self.__dict__.items() if v is True], '')
-        return setting_names + f'_{self.specialized_feature_engineering_function_name}_{self.feature_selection_method}'
+        setting_names = ''.join([k + '_' for k, v in self.__dict__.items() if v is True])
+        return setting_names + f'{self.specialized_feature_engineering_function_name}_{self.feature_selection_method}'
 
     def get_feature_engineering_function_name(self) -> str:
         """Returns the name of the feature engineering function to use or None for no feature engineering.
