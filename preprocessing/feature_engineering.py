@@ -12,7 +12,7 @@ def engineer_basic_date_features(_data: pd.DataFrame, data_cfg: DataCFG) -> pd.D
     _data['month_name'] = _data[data_cfg.time_column].dt.month_name()
     _data['day_of_week'] = _data[data_cfg.time_column].dt.day_name()
     _data['week'] = _data[data_cfg.time_column].dt.isocalendar().week
-    max_year = _data.year.max()
+    max_year = max(_data.year.max(),1)
     _data['year_sin'] = np.sin(2 * np.pi * _data['year'] / max_year)
     _data['year_cos'] = np.cos(2 * np.pi * _data['year'] / max_year)
     _data['month_sin'] = np.sin(2 * np.pi * _data['month'] / 12)
