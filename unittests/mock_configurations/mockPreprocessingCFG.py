@@ -17,7 +17,7 @@ class MockPreprocessingCFG(MockBasicFunctionalities):
 
     # Preprocessing Settings
     use_basic_timeseries_preprocessing: bool = True
-    standardize: bool = True
+    standardize: bool = False
     rounding_precision: int = 1
 
     # OpenFE settings

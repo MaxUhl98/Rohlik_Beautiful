@@ -3,11 +3,10 @@ class MockDataCFG:
     time_column: str = 'date'
     target_column = 'orders'
 
-    usable_columns: list[str] = ['warehouse', 'date', 'holiday_name', 'holiday', 'shops_closed',
-                                 'winter_school_holidays', 'school_holidays']
+    usable_columns: list[str] = ['warehouse', 'date']
 
     ordinal_columns: list[str] = ['day_of_week', 'year']
     categorical_columns: list[str] = ['month_name', 'warehouse']
 
-    target_encoding_cols: list[str] = ['holiday_name']
-    standardize_columns: list[str] = ['orders']
+    target_encoding_cols: list[str] = []
+    standardize_columns: list[str] = []

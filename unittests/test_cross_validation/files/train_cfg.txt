@@ -1,1 +1,0 @@
-{'run_name': 'test', 'validation_time_steps': 1, 'num_folds': 3, 'run_save_directory': 'unittests/test_cross_validation/files', 'log_dir': 'logs/training', 'aggregate_runs_path': 'unittests/test_cross_validation/files/test_aggregate_runs.csv'}

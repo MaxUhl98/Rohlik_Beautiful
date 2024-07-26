@@ -1,5 +1,8 @@
 import pickle
 
+import numpy as np
+import pytest
+
 from preprocessing.pipeline import InitialPreprocessor
 from unittests.mock_configurations import MockPreprocessingCFG, MockDataCFG
 import pandas as pd
@@ -22,7 +25,6 @@ class TestInitialPreprocessor:
         del self.data_cfg
         del self.preprocessor
         del self.X
-
 
     def test_drop_zero_variance_features(self):
         X_test = self.X.copy()
@@ -47,21 +49,61 @@ class TestInitialPreprocessor:
         assert [f.name for f in features] == [f.name for f in self.preprocessor.load_openfe_features()]
 
     def test_standardize(self):
+        self.data_cfg.standardize_columns = ['orders']
+        self.preprocessing_cfg.standardize = True
         self.X = self.preprocessor.standardize(self.X)
-        assert self.X['orders'].mean().round(0) == 0
-        assert self.X['orders'].std().round(0) == 1
+        assert self.X[self.data_cfg.standardize_columns[0]].mean().round(0) == 0
+        assert self.X[self.data_cfg.standardize_columns[0]].std().round(0) == 1
 
     def test_engineer_manual_features(self):
-        correctly_engineered_data = self.preprocessor.round_values(pd.read_csv('unittests/test_preprocessing/files/engineered_unittest_dataframe.csv', index_col=0))
+        correctly_engineered_data = self.preprocessor.round_values(
+            pd.read_csv('unittests/test_preprocessing/files/engineered_unittest_dataframe.csv', index_col=0))
         processed_data = self.preprocessor.round_values(self.preprocessor.engineer_manual_features(self.X))
         assert (processed_data == correctly_engineered_data[processed_data.columns]).all().all()
 
-
     def test_encode_categorical_data(self):
-        raise NotImplementedError
+        df_val = self.preprocessor.round_values(
+            pd.read_csv('unittests/test_preprocessing/files/encoded_engineered_unittest_dataframe.csv',
+                        index_col=0))
+        df_test = self.preprocessor.round_values(
+            self.preprocessor.encode_categorical_data(self.preprocessor.engineer_manual_features(self.X)))
+        assert (df_test == df_val[df_test.columns]).all().all()
 
-    def test_engineer_openfe_features(self):
-        raise NotImplementedError
+    def test_engineer_openfe_features_nan_assertion_error(self):
+        self.preprocessor.openfe_filename = ''
+        y = self.X.pop(self.data_cfg.target_column)
+        try:
+            X_nan = self.X.copy()
+            X_nan['nan_col'] = np.nan
+            self.preprocessor.engineer_openfe_features(X_nan, y)
+        except AssertionError as ex:
+            assert str(
+                ex) == f'Feature data has NaN values in {self.preprocessor.openfe_filename}. NaN values are incompatible with OpenFE, remove NaN values or disable OpenFE'
 
+    def test_engineer_loaded_openfe_features(self):
+        y = self.X.pop(self.data_cfg.target_column)
+        transformed_df = self.preprocessor.round_values(self.preprocessor.engineer_openfe_features(self.X, y)[0])
+        assert (transformed_df == self.preprocessor.round_values(
+            pd.read_csv('unittests/test_preprocessing/files/openfe_engineered_unittest_dataframe.csv', index_col=0)[
+                transformed_df.columns])).all().all()
 
+    def test_no_feature_selection(self):
+        y = self.X.pop(self.data_cfg.target_column)
+        new_df = self.preprocessor.select_features(self.X, y)
+        assert (new_df == pd.concat([self.X, y], axis=1)[new_df.columns]).all().all()
 
+    def test_transform_data(self):
+        transformed_data = self.preprocessor.transform_data(self.X)
+        df_val = pd.read_csv('unittests/test_preprocessing/files/unittest_full_run_dataframe.csv',
+                             index_col=0)[transformed_data.columns]
+        transformed_data = self.preprocessor.round_values(transformed_data)
+        df_val = self.preprocessor.round_values(df_val)
+        assert (transformed_data == df_val[transformed_data.columns]).all().all()
+
+    def test_run(self):
+        transformed_data = self.preprocessor.run(self.X)
+        df_val = pd.read_csv('unittests/test_preprocessing/files/unittest_full_run_dataframe.csv',
+                             index_col=0)[transformed_data.columns]
+        transformed_data = self.preprocessor.round_values(transformed_data)
+        df_val = self.preprocessor.round_values(df_val)
+        assert (transformed_data == df_val[transformed_data.columns]).all().all()

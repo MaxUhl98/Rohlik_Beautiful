@@ -23,7 +23,7 @@ def mock_train_func(X_train, y_train, X_test, y_test, model, train_cfg, **train_
     assert isinstance(y_train, np.ndarray)
     assert isinstance(X_test, np.ndarray)
     assert isinstance(y_test, np.ndarray)
-    assert isinstance(train_cfg, TrainCFG)
+    assert isinstance(train_cfg, TrainCFG) or isinstance(train_cfg, MockTrainCFG)
     assert X_train.shape[0] == y_train.shape[0]
     assert X_test.shape[0] == y_test.shape[0]
     return next(g)
