@@ -2,9 +2,9 @@
 [x] 1. Setup stable, reproducible, project emulating CV, which automatically saves oof predictions for later use
         - includes logging
         - includes automated saving of test settings, produced models and adding the experiment results to an aggregated view
-[ ] 2. Implement preprocessing pipeline which fits neatly into the CV schema
+[X] 2. Implement preprocessing pipeline which fits neatly into the CV schema
         - setup reproducible config file whose settings are logged and saved during each pipeline run
-[ ] 3. Include option for feature selection (SFS/feature importance)
+[X] 3. Include option for feature selection (SFS/feature importance)
 [ ] 4. Implement model selection in a way to perfectly fit into the existing pipeline
 [ ] 5. Write a hyperparameter-tuning wrapper for the pipeline
 [ ] 6. Add automated ensemble using oof predictions as last step
