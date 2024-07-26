@@ -1,6 +1,12 @@
+import pandas as pd
+
 from preprocessing.feature_engineering import *
 from typing import *
 from unittests.mock_configurations.mockBasicFunctionalities import MockBasicFunctionalities
+
+
+def get_identical_data(X: pd.DataFrame) -> pd.DataFrame:
+    return X
 
 
 class MockPreprocessingCFG(MockBasicFunctionalities):
@@ -11,8 +17,8 @@ class MockPreprocessingCFG(MockBasicFunctionalities):
 
     # Preprocessing Settings
     use_basic_timeseries_preprocessing: bool = True
-    standardize: bool = False
-    rounding_precision: int = 10
+    standardize: bool = True
+    rounding_precision: int = 1
 
     # OpenFE settings
     use_openfe: bool = True
@@ -22,10 +28,9 @@ class MockPreprocessingCFG(MockBasicFunctionalities):
                                      'n_jobs': 4}
     openfe_feature_save_directory: str = 'unittests/test_preprocessing/files'
 
-
     # Feature Engineering Settings
     specialized_feature_engineering_function: Union[
-        Callable, None] = None  # Set to None if you don't want specialized preprocessing
+        Callable, None] = staticmethod(get_identical_data)  # Set to None if you don't want specialized preprocessing
 
     # Feature selection
     feature_selection_method: Union[str, None] = None  # one out of [None, 'SFS', 'RFE', 'Model'], all use XGB regressor
