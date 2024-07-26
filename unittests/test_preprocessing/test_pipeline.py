@@ -107,3 +107,4 @@ class TestInitialPreprocessor:
         transformed_data = self.preprocessor.round_values(transformed_data)
         df_val = self.preprocessor.round_values(df_val)
         assert (transformed_data == df_val[transformed_data.columns]).all().all()
+        assert MockPreprocessingCFG().load(self.preprocessor.data_save_path.replace('.feather', '.txt'))==self.preprocessing_cfg
