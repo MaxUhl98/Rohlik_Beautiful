@@ -149,11 +149,21 @@ class InitialPreprocessor(BasePipeline):
         return X
 
     def round_values(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Rounds float values in X to specified precision
+
+        :param X: Feature data to round.
+        :return: Rounded feature data.
+        """
         X_categorical = X.select_dtypes(include=['object', 'category'])
         X = X.select_dtypes(exclude=['object', 'category']).round(decimals=self.preprocess_cfg.rounding_precision)
         return pd.concat([X, X_categorical], axis=1)
 
     def drop_zero_variance_features(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Drop zero variance features.
+
+        :param X: Feature data.
+        :return: Feature data without zero variance features.
+        """
         standard_deviations = X.select_dtypes(exclude=['object', 'category']).std()
         drop_cols = standard_deviations.loc[standard_deviations == 0].index
         return X.drop(columns=drop_cols)
