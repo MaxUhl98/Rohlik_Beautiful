@@ -10,4 +10,4 @@ class MockDataCFG:
     categorical_columns: list[str] = ['month_name', 'warehouse']
 
     target_encoding_cols: list[str] = ['holiday_name']
-    standardize_columns: list[str] = []
+    standardize_columns: list[str] = ['orders']
