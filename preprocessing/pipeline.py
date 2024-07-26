@@ -11,7 +11,7 @@ from sklearn.feature_selection import SelectFromModel, SequentialFeatureSelector
 from xgboost import XGBRegressor
 from sklearn.preprocessing import TargetEncoder
 from preprocessing.BasePipeline import BasePipeline
-
+import logging
 
 class InitialPreprocessor(BasePipeline):
     """A class to perform initial preprocessing of the dataset.
@@ -20,10 +20,11 @@ class InitialPreprocessor(BasePipeline):
     :param data_cfg: Configuration object for data settings.
     """
 
-    def __init__(self, preprocess_cfg: PreprocessingCFG, data_cfg: DataCFG):
+    def __init__(self, preprocess_cfg: PreprocessingCFG, data_cfg: DataCFG, logger: logging.Logger):
         super().__init__(preprocess_cfg, data_cfg)
         self.openfe_filename: str = f'{preprocess_cfg.openfe_feature_save_directory}/{preprocess_cfg.openfe_name}.pkl'
         self.data_save_path = f'{preprocess_cfg.data_save_directory}/{preprocess_cfg.name}.feather'
+        self.logger: logging.Logger = logger
 
     def run(self, data: pd.DataFrame) -> pd.DataFrame:
         """Execute the preprocessing pipeline on the provided data.
@@ -31,11 +32,17 @@ class InitialPreprocessor(BasePipeline):
         :param data: Input data to preprocess.
         :return: Preprocessed data.
         """
+        self.logger.info(f'Starting preprocessing pipeline with configuration setup:\n{self.preprocess_cfg}')
         if os.path.exists(self.data_save_path):
             data = pd.read_feather(self.data_save_path)
+            self.logger.info(f'Loaded data from similar run')
         else:
+            self.logger.info(f'Transforming data...')
             data = self.transform_data(data)
+            self.logger.info(f'Saving data...')
             data.to_feather(self.data_save_path)
+            self.logger.info(f'Saving configuration setup...')
+            self.preprocess_cfg.save(self.data_save_path.replace('.feather', '.txt'))
         return data
 
     def transform_data(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -46,15 +53,21 @@ class InitialPreprocessor(BasePipeline):
         :return: Transformed data.
         """
         X = data[self.data_cfg.usable_columns + [self.data_cfg.target_column]]
+        self.logger.info(f'Engineering basic features...')
         X = self.engineer_manual_features(X)
         y = X.pop(self.data_cfg.target_column)
         if self.preprocess_cfg.use_openfe:
+            self.logger.info(f'Preprocessing with OpenFE...')
             X, y = self.engineer_openfe_features(X, y)
             X = self.round_values(X)
 
+        self.logger.info(f'Encoding categorical features...')
         X = self.encode_categorical_data(X)
+        self.logger.info(f'Drop zero variance features...')
         X = self.drop_zero_variance_features(X)
+        self.logger.info(f'Standardize features...')
         X = self.standardize(X)
+        self.logger.info(f'Selecting features...')
         X = self.select_features(X, y)
         return pd.concat([X, y], axis=1)
 
