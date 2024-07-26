@@ -69,6 +69,7 @@ class InitialPreprocessor(BasePipeline):
             if X.isna().any().any():
                 raise AssertionError(f'Feature data has NaN values in {self.openfe_filename}. '
                                      f'NaN values are incompatible with OpenFE, remove NaN values or disable OpenFE')
+            X = X.replace({True: 1, False: 0})
             features = OpenFE().fit(X, y, **self.preprocess_cfg.openfe_kwargs)
             self.save_openfe_features(features)
         else:
@@ -130,7 +131,7 @@ class InitialPreprocessor(BasePipeline):
             X[self.data_cfg.standardize_columns] = StandardScaler().fit_transform(X[self.data_cfg.standardize_columns])
         return X
 
-    def select_features(self, X: pd.DataFrame, y: pd.Series) -> np.ndarray:
+    def select_features(self, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
         """Select features based on the configuration method.
 
         :param X: Feature data.
