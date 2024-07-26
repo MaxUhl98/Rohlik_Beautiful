@@ -1,6 +1,6 @@
 from ast import literal_eval
 from typing import *
-
+from pprint import pformat
 
 class BasicFunctionalities:
 
@@ -37,3 +37,6 @@ class BasicFunctionalities:
         :return: None
         """
         self.__init__()
+
+    def __repr__(self):
+        return pformat(self.__dict__)
