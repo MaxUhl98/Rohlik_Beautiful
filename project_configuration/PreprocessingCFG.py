@@ -8,6 +8,7 @@ class PreprocessingCFG(BasicFunctionalities):
     # Encoding settings
     use_onehot: bool = True
     use_ordinal_encoding: bool = True
+    use_target_encoding: bool = False
 
     # Preprocessing Settings
     use_basic_timeseries_preprocessing: bool = True
@@ -15,7 +16,7 @@ class PreprocessingCFG(BasicFunctionalities):
     rounding_precision: int = 10
 
     # OpenFE settings
-    use_openfe: bool = False
+    use_openfe: bool = True
     openfe_kwargs: dict[str, Any] = {'feature_boosting': True,
                                      'task': 'regression',
                                      'n_repeats': 2,
@@ -24,10 +25,12 @@ class PreprocessingCFG(BasicFunctionalities):
 
     # Feature Engineering Settings
     specialized_feature_engineering_function: Union[
-        Callable, None] = None  # Set to None if you don't want specialized preprocessing
+        Callable, None] =  None # Set to None if you don't want specialized preprocessing
+    if callable(specialized_feature_engineering_function):
+        specialized_feature_engineering_function = staticmethod(specialized_feature_engineering_function)
 
     # Feature selection
-    feature_selection_method: Union[str, None] = None  # one out of [None, 'SFS', 'RFE', 'Model'], all use XGB regressor
+    feature_selection_method: Union[str, None] = 'Model'  # one out of [None, 'SFS', 'RFE', 'Model'], all use XGB regressor
     scoring: Union[str, Callable] = 'MAPE'
 
     data_save_directory: str = 'preprocessing/preprocessed_datasets'
@@ -44,7 +47,6 @@ class PreprocessingCFG(BasicFunctionalities):
         self.openfe_kwargs = self.openfe_kwargs
         self.openfe_feature_save_directory = self.openfe_feature_save_directory
 
-        self.specialized_feature_engineering_function = self.specialized_feature_engineering_function
         self.specialized_feature_engineering_function_name = self.get_feature_engineering_function_name()
 
         self.openfe_name = self.get_openfe_name() if self.use_openfe else ''
