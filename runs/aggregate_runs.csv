@@ -1,1 +1,36 @@
-,Unnamed: 0.4,Unnamed: 0.3,Unnamed: 0.2,Unnamed: 0.1,Unnamed: 0,run_name, avg_cv_test_loss, num_folds, model_name,avg_cv_test_loss,num_folds,model_name
+,run_name, avg_cv_test_loss, num_folds, model_name,avg_cv_test_loss,num_folds,model_name
+0,saved_runs\test_no_special_events_1,,,,0.1773751714552731,10,XGBRegressor
+1,saved_runs\test,,,,0.1773751714552731,10,XGBRegressor
+2,saved_runs\test_1,,,,0.2040506858254141,10,XGBRegressor
+3,saved_runs\test_3,,,,0.1773751714552731,10,XGBRegressor
+4,saved_runs\test_4,,,,0.1773751714552731,10,XGBRegressor
+5,saved_runs\test_5,,,,0.1802143899261316,10,LGBMRegressor
+6,saved_runs\test_6,,,,0.2013890445963571,10,CatBoostRegressor
+7,saved_runs\test_12,,,,0.0615052628763888,10,CatBoostRegressor
+8,saved_runs\test_16,,,,0.0617034771488411,10,CatBoostRegressor
+9,saved_runs\test_17,,,,0.0642467232142222,10,RandomForestRegressor
+10,saved_runs\test_19,,,,0.0876275948615239,15,RandomForestRegressor
+11,saved_runs\test_20,,,,0.0627011773464836,10,XGBRegressor
+12,saved_runs\test_21,,,,0.0620243607662974,10,LGBMRegressor
+13,saved_runs\test_23,,,,0.0678278161762746,10,LGBMRegressor
+14,saved_runs\test_24,,,,0.0641666739600518,10,LGBMRegressor
+15,saved_runs\test_26,,,,0.1458853008664693,10,CatBoostRegressor
+16,saved_runs\test_27,,,,0.0678770091110767,10,CatBoostRegressor
+17,saved_runs\test_28,,,,0.1074251997743112,10,XGBRegressor
+18,saved_runs\test_29,,,,0.1074251997743112,10,XGBRegressor
+19,saved_runs\test_30,,,,0.125123357433135,10,XGBRegressor
+20,saved_runs\test_31,,,,0.125123357433135,10,XGBRegressor
+21,saved_runs\test_32,,,,0.1074251997743112,10,XGBRegressor
+22,saved_runs\test_33,,,,0.1089703786201915,10,XGBRegressor
+23,saved_runs\test_34,,,,0.089369714043181,10,XGBRegressor
+24,saved_runs\test_36,,,,0.0701667674754556,10,XGBRegressor
+25,saved_runs\test_37,,,,0.0627011773464836,10,XGBRegressor
+26,saved_runs\test_38,,,,0.0627011773464836,10,XGBRegressor
+27,saved_runs\test_39,,,,0.0690905316888397,10,XGBRegressor
+28,saved_runs\test_40,,,,0.0687332087893948,10,XGBRegressor
+29,saved_runs\test_41,,,,0.06853006146115,10,XGBRegressor
+30,saved_runs\test_42,,,,0.0626314498864456,10,XGBRegressor
+31,saved_runs\test_43,,,,0.0624120433178753,10,XGBRegressor
+32,saved_runs\test_44,,,,0.0958870219207783,10,XGBRegressor
+33,saved_runs\test_45,,,,0.0958870219207783,10,XGBRegressor
+34,saved_runs\test_46,,,,0.062412043317875344,10,XGBRegressor
