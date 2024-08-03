@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import datetime
-from typing import Any, Callable, Iterable, Tuple
+from typing import *
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import TimeSeriesSplit
@@ -38,7 +38,7 @@ def create_new_save_directory(train_cfg: TrainCFG) -> str:
 
 def get_fold_data(
         _data: pd.DataFrame, data_cfg: DataCFG, time_series: np.ndarray,
-        train_times: np.ndarray, test_times: np.ndarray, lookback_window: int = 0
+        train_times: np.ndarray, test_times: np.ndarray, model: Any, lookback_window: int = 0
 ) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
     """Split the data into training and testing sets based on time series.
 
@@ -50,6 +50,8 @@ def get_fold_data(
     :param lookback_window: Number of days from the past to include in test data
     :return: Tuple containing (X_train, y_train, X_test, y_test)
     """
+    if not issubclass(model, nn.Module):
+        lookback_window = 0
     X_train = _data[_data[data_cfg.time_column] <= time_series[train_times[-1]]]
     X_test = _data[
         (_data[data_cfg.time_column] >= time_series[test_times[0] - lookback_window]) &
@@ -141,12 +143,35 @@ def save_models_and_run_data(save_directory_path: str, train_cfg: TrainCFG, data
     aggregated_runs.to_csv(train_cfg.aggregate_runs_path)
 
 
+def process_data(X_train: pd.DataFrame, y_train: Union[pd.Series, pd.DataFrame], X_test: pd.DataFrame,
+                 data_cfg: DataCFG,
+                 preprocess_cfg: PreprocessingCFG, model: Any) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Preprocesses data for model training
+
+    :param X_train: Train feature dataframe
+    :param y_train: Train target series/dataframe
+    :param X_test: Test feature dataframe
+    :param data_cfg: Data configuration
+    :param preprocess_cfg: Preprocessing configuration
+    :param model: Model to train and test
+    :return: Tuple of training and test dataframes
+    """
+    if data_cfg.target_encoding_cols and preprocess_cfg.use_target_encoding:
+        processor = CVPreprocessor(preprocess_cfg, data_cfg)
+        X_train = processor.run(X_train, y_train)
+        X_test = processor.transform_features(X_test)
+    if not issubclass(model, nn.Module):
+        X_train, X_test = X_train.drop(columns=data_cfg.time_column), X_test.drop(columns=data_cfg.time_column)
+    return X_train, X_test
+
+
 def execute_cv_loop(
         _data: pd.DataFrame, train_function: Callable, models: list[Any], train_cfg: TrainCFG, data_cfg: DataCFG,
         preprocess_cfg: PreprocessingCFG, cv_logger: logging.Logger, additional_metrics: Iterable[Callable] = (),
         **train_kwargs
 ) -> list[float]:
-    """Execute the cross-validation loop. Saves Out-of-fold predictions (OOF), train and test loss and trained models.
+    """Execute the cross-validation loop. Saves Out-of-fold predictions (OOF), train and test loss.
+    Also saves trained models.
 
     :param _data: Pandas dataframe containing training and testing data.
     :param train_function: Function used to train the models.
@@ -156,7 +181,7 @@ def execute_cv_loop(
     :param cv_logger: Logger used to log the Cross-Validation results.
     :param additional_metrics: Additional metrics used to evaluate the models.
     :param train_kwargs: Additional arguments used by the train function.
-    :return: None
+    :return: List containing Cross Validation test losses
     """
     save_directory_path = create_new_save_directory(train_cfg)
     time_series = get_sorted_timeseries_array(_data[data_cfg.time_column])
@@ -165,20 +190,15 @@ def execute_cv_loop(
     oof_predictions, cv_train_losses, cv_test_losses = [], [], []
     additional_metric_losses = {metric.__name__: [] for metric in additional_metrics}
 
-    for num, (train_times, test_times) in enumerate(splitter.split(time_series), start=1):
-        if issubclass(models[num - 1], nn.Module):
-            X_train, y_train, X_test, y_test = get_fold_data(_data, data_cfg, time_series, train_times, test_times,
-                                                             train_cfg.lookback_length)
-        else:
-            X_train, y_train, X_test, y_test = get_fold_data(_data, data_cfg, time_series, train_times, test_times, 0)
-        if data_cfg.target_encoding_cols and preprocess_cfg.use_target_encoding:
-            processor = CVPreprocessor(preprocess_cfg, data_cfg)
-            X_train = processor.run(X_train, y_train)
-            X_test = processor.transform_features(X_test)
-        if not issubclass(models[num - 1], nn.Module):
-            X_train, X_test = X_train.drop(columns=data_cfg.time_column), X_test.drop(columns=data_cfg.time_column)
-        train_data, models[num - 1] = train_function(X_train, y_train, X_test, y_test, models[num - 1], train_cfg,
-                                                     **train_kwargs)
+    lookback_length = train_cfg.lookback_length
+
+    for num, (train_times, test_times) in enumerate(splitter.split(time_series)):
+        datasets = get_fold_data(_data, data_cfg, time_series, train_times, test_times, models[num], lookback_length)
+        X_train, y_train, X_test, y_test = datasets
+        X_train, X_test = process_data(X_train, y_train, X_test, data_cfg, preprocess_cfg, models[num])
+        train_results = train_function(X_train, y_train, X_test, y_test, models[num], train_cfg,data_cfg=data_cfg, **train_kwargs)
+        train_data, models[num] = train_results
+
         log_and_save_results(train_data, additional_metrics, additional_metric_losses,
                              oof_predictions, cv_train_losses, cv_test_losses, cv_logger, y_test, num)
 
