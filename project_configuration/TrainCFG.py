@@ -2,6 +2,7 @@ from project_configuration.ConfigurationFunctionalities import BasicFunctionalit
 from sklearn.metrics import mean_absolute_percentage_error
 from typing import *
 
+
 class TrainCFG(BasicFunctionalities):
     """Class to configure the training process"""
     run_name: str = 'test'
@@ -14,9 +15,19 @@ class TrainCFG(BasicFunctionalities):
     loss_fn: Callable = mean_absolute_percentage_error
     loss_fn = staticmethod(loss_fn)
 
-    lookback_length:int = 420
+    lookback_length: int = 420
+    batch_size: int = 16
+    num_epochs: int = 50
+    patience: int = 1
+    learning_rate: float = 10 ** -5
+    max_grad_norm: [int, float] = 10 ** 5
+    shuffle: bool = False
+    device: str = 'cuda'
+    apex: bool = True
+    lr_scheduling: bool = False
+    optimize_for: str = 'min'
 
-    additional_metrics  = {}
+    additional_metrics = {}
 
     def __init__(self):
         """This is necessary for the saving of variables
@@ -28,5 +39,3 @@ class TrainCFG(BasicFunctionalities):
         self.run_save_directory = self.run_save_directory
         self.log_dir = self.log_dir
         self.loss_fn_name = self.loss_fn.__name__
-
-
